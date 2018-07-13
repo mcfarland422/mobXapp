@@ -1,25 +1,53 @@
-import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { Component } from "@angular/core";
+import { NavController, NavParams, ViewController } from "ionic-angular";
+import { Birthday } from "../../models/birthday";
+import { BirthdayStore } from "../../stores/birthday.store";
 
-/**
- * Generated class for the DetailsPage page.
- *
- * See https://ionicframework.com/docs/components/#navigation for more info on
- * Ionic pages and navigation.
- */
-
-@IonicPage()
 @Component({
-  selector: 'page-details',
-  templateUrl: 'details.html',
+  selector: "page-details",
+  templateUrl: "details.html"
 })
 export class DetailsPage {
+  public birthday: Birthday = new Birthday();
+  public isNew: boolean;
+  public action: string;
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  constructor(
+    public navCtrl: NavController,
+    public viewCtrl: ViewController,
+    public navParams: NavParams,
+    public store: BirthdayStore
+  ) {}
+
+  ionViewWillEnter() {
+    let selectedBirthday = this.navParams.get("birthday");
+
+    if (selectedBirthday) {
+      this.birthday = Object.assign(new Birthday(), selectedBirthday);
+      this.isNew = false;
+      this.action = "Edit";
+    } else {
+      this.isNew = true;
+      this.action = "Add";
+    }
   }
 
-  ionViewDidLoad() {
-    console.log('ionViewDidLoad DetailsPage');
+  save() {
+    if (this.isNew) {
+      this.store.addBirthday(this.birthday);
+    } else {
+      this.store.updateBirthday(this.birthday);
+    }
+
+    this.dismiss();
   }
 
+  delete() {
+    this.store.deleteBirthday(this.birthday);
+    this.dismiss();
+  }
+
+  dismiss() {
+    this.viewCtrl.dismiss(this.birthday);
+  }
 }
