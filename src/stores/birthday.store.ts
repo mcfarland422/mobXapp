@@ -4,7 +4,7 @@ import { Birthday } from "../models/birthday";
 import { UUID } from "angular2-uuid";
 
 @Injectable()
-export class BirthdaydayStore {
+export class BirthdayStore {
   @observable birthdays: Birthday[] = [];
 
   @action
@@ -25,9 +25,19 @@ export class BirthdaydayStore {
     this.birthdays[index] = birthday;
   }
 
-  @action
-  updateBirthday(birthday: Birthday) {
-    let index = this.birthdays.findIndex(b => b.id == birthday.id);
-    this.birthdays[index] = birthday;
+  @computed
+  get birthdaysToday() {
+    let today = new Date();
+
+    return this.birthdays
+      .filter(
+        b =>
+          b.parsedDate.getMonth() == today.getMonth() &&
+          b.parsedDate.getDate() == today.getDate()
+      )
+      .map(b => ({
+        name: b.name,
+        age: today.getFullYear() - b.parsedDate.getFullYear()
+      }));
   }
 }
